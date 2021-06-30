@@ -1,4 +1,0 @@
-[[payara-micro-appendices]]
-= Payara Micro Appendices
-
-Complementary information about Payara Micro Community

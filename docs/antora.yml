@@ -1,7 +1,7 @@
 name: docs
 title: Payara Platform
 version: master
-start_page: ROOT:README.adoc
+start_page: ROOT:Overview.adoc
 nav:
 - modules/ROOT/nav.adoc
 asciidoc:
