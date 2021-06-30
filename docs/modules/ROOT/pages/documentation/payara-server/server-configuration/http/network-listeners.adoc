@@ -1,7 +1,6 @@
 = Network Listeners
-:toc:
 
-A network listener is a listen socket that has an IP address, port number, protocol,
+A network listener is a listener socket that has an IP address, port number, protocol,
 as well as various other configuration options. A listener can listen on a specific
 port on all network interfaces by using the IP `0.0.0.0`, and a configured port.
 A virtual server will then be used to select a combination of network listeners to
@@ -117,6 +116,19 @@ The thread pool used by the network listener. This determines the pool of thread
 `set configs.config.server-config.network-config.network-listeners.network-listener.${network-listener-name}.thread-pool=${thread-pool-name}`
 
 ---
+[[sni]]
+== Server Name Indication - SNI
+
+
+Server Name Indication, SNI for short, allows you to use multiple SSL certificates with the same IP address. When enabled, the server will look for a certificate in the configured keystore using a nickname that matches the host name requested.  
+
+SNI can be enabled by configuring a network listener. Existing network listeners can be configured from the admin console or with asadmin commands. The network listener configurations can be found in the admin console under *Configurations -> <your-config> -> Network Config -> Network Listeners*.
+
+From here, click on the *SSL* tab, and make sure that the *SNI Support* checkbox is ticked.
+
+IMPORTANT: For SNI to take effect, the network listener must have security enabled by providing a default keypair and certificate, and by checking the *Security* box on the *HTTP* tab.
+
+
 [[asadmin]]
 == Asadmin Commands
 
@@ -166,3 +178,6 @@ asadmin> restart-http-listeners FlyingFish
 asadmin> restart-http-listeners
 ----
 First line affects all instances, second line affects only instance named `FlyingFish`, third is a short hand for the second, last is a short hand for `restart-http-listeners server` or `restart-http-listeners --target=server`.
+
+
+
