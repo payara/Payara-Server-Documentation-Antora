@@ -1,0 +1,34 @@
+[[log-to-console]]
+= Log To Console
+
+The `Log to Console` option is only effective when the Server or the Instance is started with the verbose option.
+
+[source, shell]
+----
+asadmin start domain --verbose
+----
+
+When the server or domain is not started in verbose mode, the `java.util.ConsoleHandler` will not be active for logging although it is defined as handler in the _logging.properties_ file because there is no console attached with the process running the Payara server or Instance.
+
+When in verbose mode, the log to Console option will also be active, regardless of the initial value in the _logging.properties_ as otherwise, no log output would be visible on the console. Once started in verbose mode, you can use the Admin Console or the asadmin CLI to change the option.
+
+[[using-web-admin-console]]
+== Using the Admin Console
+
+To configure `Log to Console` option using Admin Console:
+
+image:logging/log_to_file.png[Log to Console disabled]
+
+[[using-asadmin-utility]]
+== Using an `asadmin` command
+
+Use the following command to enable or disabled logging to the console:
+
+[source, shell]
+----
+asadmin> set-log-attributes com.sun.enterprise.server.logging.GFFileHandler.logtoConsole=false
+----
+
+
+
+
