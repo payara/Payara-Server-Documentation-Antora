@@ -1,8 +1,8 @@
 [[logging]]
-Logging
+= Logging
 -------
 
-Payara Server Community captures information about events that occur and records this
+Payara Server captures information about events that occur and records this
 information using its logging mechanism into log files.
 
 In a Payara Server domain, the information is logged into the following files
@@ -30,5 +30,480 @@ the section `Logger Settings` - as on the following picture:
 
 image:logging/logging_setup.png[Logger Settings]
 
-xref:/documentation/payara-server/logging/daily-log-rotation.adoc[Daily log rotation] +
-Documentation about daily log rotation in Payara and how to configure it.
+
+[[env-var-replacement]]
+== Environment Variable Replacement
+
+The logging properties file supports environment variables like
+
+[source]
+----
+.level=${ENV=logLevel}
+----
+
+Whenever the server starts up or the logging properties are changed, the value for the `.level` property will be taken from the environment variable `logLevel`.
+
+[[access-logging-max-file-size]]
+== Access Logging Max File Size
+
+
+Both Payara Server and GlassFish Open Source Edition provides different ways 
+to rotate access log files. On top of that, Payara Server allows access log file 
+rotation based on file size. 
+
+`Max File Size` option provides a way to change the file size at which the Payara 
+Server rotates the access log file. This option accepts an integer value specifying 
+the maximum size of the log file, after which a file rotation will occur. 
+If the value for this option is set to 0 rotation is disabled.
+
+
+*Using the Admin Console*
+
+To configure `Max File Size` option using Admin Console:
+
+image:logging/max_file_size.png[Max File Size]
+
+[[using-asadmin-utility]]
+*Using an `asadmin` command*
+
+Use the following command to set maximum size for access log files:
+
+[source, shell]
+----
+asadmin> set configs.config.server-config.http-service.access-log.maximum-file-size=5000000
+----
+
+[[access-logging-date-stamp-property]]
+== Access logging date stamp property
+
+The date stamp for access logs can be configured. When the new property is set to true, only the files that are rotated at the end of the day will be date stamped, whereas when the property is false, the file being written has the date stamp appended.
+
+
+[[notification-logging]]
+== Notification Logging Service
+
+
+Payara Notification Logging Service captures information about events which come 
+from other services, such as the JMX Monitoring Service, the HealthCheck service 
+or the Request Tracing service and stores it into a log file.
+
+All the generated logs are stored in _server.log_ by default. But, it is possible to configure the Log Notifier to output to a 
+separate log file. More information on Log Notifier can be found on the 
+xref:/documentation/payara-server/notification-service/notifiers/log-notifier.adoc[the Log Notifier].
+
+If Log Notifier is configured to use a separate log file, the default log file 
+can be found at:
+
+[cols=1,options="header"]
+|==========================================================
+|Log File Name and Location
+|`domain-dir/logs/notification.log`
+|==========================================================
+
+Payara Notification Logging Service uses its own collection of logging 
+properties that is stored in a configuration file. By default logging properties 
+file can be found at:
+
+[cols=1,options="header"]
+|==========================================================
+|Logging Properties File Name and Location
+|`domain-dir/config/logging.properties`
+|==========================================================
+
+[[configuring-the-payara-notification-logging-service]]
+=== Configuring the Payara Notification Logging Service
+
+This section will go through following topics:
+
+* <<Enabling or Disabling Logging to a File>>
+* <<Configuring Log File Rotation>>
+* <<To Change Logging Format>>
+* <<To Set Maximum Number of History Files>>
+* <<To Change the Name and Location of the Log File>>
+* <<To Set Compress on Rotation>>
+
+NOTE: Payara Server most be restarted after changes are made to logging options 
+for it to apply. 
+
+[[enabling-or-disabling-logging-to-a-file]]
+==== Enabling or Disabling Logging to a File
+
+`Log to File` option will provide a way to enable and disable logging to a file 
+of Payara Server Notifications. When disabled this should help to minimize disk 
+usage. This option will be more accommodating if Payara Server is running in 
+cloud environment where disk space is scarce. 
+
+
+*Using the Admin Console*
+
+To configure `Log to File` option using Admin Console:
+
+image:logging/notification-logging/payara_notification_log_to_file.png[Log to File enabled]
+
+
+*Using an `asadmin` command*
+
+Use the following command to enable or disabled logging to a file:
+
+[source, shell]
+----
+asadmin> set-log-attributes fish.payara.enterprise.server.logging.PayaraNotificationFileHandler.logtoFile=false
+----
+
+[[configuring-log-file-rotation]]
+==== Configuring Log File Rotation
+
+By default log rotation is set to rotate when the log file reaches 2 
+Megabytes(MB). Nonetheless, there are number of ways log rotation can be 
+configured. Size of file at which the log rotates can be changed, it can be set 
+to rotate at date change, rotate when time limit is reached and, finally based on 
+maximum number of history files. Further details about these options will be 
+explained in the following section:
+
+* <<Rotation on Date Change>>
+* <<Rotation on File Size>>
+* <<Rotation on Time Limit>>
+* <<To Set Maximum Number of History Files>>
+
+
+[[rotation-on-date-change]]
+==== Rotation on Date Change
+
+`Rotation On Date Change` option provides a way to set log rotation at date change (at midnight).  
+
+
+*Using the Admin Console*
+
+To configure `Rotation on Date Change` option using Admin Console:
+
+image:logging/notification-logging/payara_notification_rotation_on_date_change.png[Rotation on Date Change enabled]
+
+
+*Using an `asadmin` command*
+
+Use the following command to enable or disabled rotation of log on date change:
+
+[source, shell]
+----
+asadmin> set-log-attributes fish.payara.enterprise.server.logging.PayaraNotificationFileHandler.rotationOnDateChange=false
+----
+
+[[rotation-on-file-size]]
+==== Rotation on File Size
+
+`File Rotation Limit` option provides a way to change the file size at which 
+the Payara Server Community rotates the log file. This option accepts an integer value 
+specifying the maximum size of the log file, after which a file rotation will 
+occur. The minimum size it can be set to is 500000 Bytes. If the value for this 
+option is set to 0 rotation is disabled. 
+
+*Using the Admin Console*
+
+To configure `File Rotation Limit` option using Admin Console:
+
+image:logging/notification-logging/payara_notification_rotation_on_file_size.png[File Rotation Limit]
+
+*Using an `asadmin` command*
+
+Use the following command to change rotation of log on file size:
+
+[source, shell]
+----
+asadmin> set-log-attributes fish.payara.enterprise.server.logging.PayaraNotificationFileHandler.rotationLimitInBytes=500000
+----
+
+[[rotation-on-time-limit]]
+==== Rotation on Time Limit
+
+`File Roatation Time Limit` option provides a way to change the log file 
+rotation time limit interval.
+
+*Using the Admin Console*
+
+To configure `File Roatation Time Limit` option using Admin Console:
+
+image:logging/notification-logging/payara_notification_rotation_on_time_limit.png[File Roatation Time Limit]
+
+*Using an `asadmin` command*
+
+Use the following command to change rotation of log on time limit interval:
+
+[source, shell]
+----
+asadmin> set-log-attributes fish.payara.enterprise.server.logging.PayaraNotificationFileHandler.rotationTimelimitInMinutes=4
+----
+
+[[to-change-logging-format]]
+==== To Change Logging Format
+
+`Log File Logging Format` option will provide a way to change logging format. There are 3 logging formats available: ULF, ODL and JSON.
+
+*Using the Admin Console*
+
+To configure `Log File Logging Format` option using Admin Console:
+
+image:logging/notification-logging/payara_notification_change_logging_format.png[Change Logging Format]
+
+*Using an `asadmin` command*
+
+Use the following command to change logging format:
+
+[source, shell]
+----
+asadmin> set-log-attributes fish.payara.enterprise.server.logging.PayaraNotificationFileHandler.formatter=fish.payara.enterprise.server.logging.JSONLogFormatter
+----
+
+[[to-set-maximum-number-of-history-files]]
+==== To Set Maximum Number of History Files
+
+`Maximum History Files` option provides a way to set the limit on the number of 
+log files that can be created by Payara Server. Once the number of files 
+reaches the set limit, oldest rotated log file is deleted. If the value for 
+this option is set 0, all the rotated log files are preserved. 
+
+*Using the Admin Console*
+
+To configure `Maximum History File` option using Admin Console:
+
+image:logging/notification-logging/payara_notification_set_maximum_number_of_history_files.png[Maximum History File]
+
+*Using an `asadmin` command*
+
+Use the following command to set the limit on the number of log files that can be created by Payara Server:
+
+[source, shell]
+----
+asadmin> set-log-attributes fish.payara.enterprise.server.logging.PayaraNotificationFileHandler.maxHistoryFiles=20
+----
+
+[[to-change-the-name-and-location-of-the-log-file]]
+==== To Change the Name and Location of the Log File
+
+`Log File` option provides a way to change the name and location of the log 
+files. 
+
+*Using the Admin Console*
+
+To configure `Log File` option using Admin Console:
+
+image:logging/notification-logging/payara_notification_change_name_and_location_of_log_file.png[Log File]
+
+*Using an `asadmin` command*
+
+Use the following command to change the name and location of the log file:
+
+[source, shell]
+----
+asadmin> set-log-attributes fish.payara.enterprise.server.logging.PayaraNotificationFileHandler.file=${com.sun.aas.instanceRoot}/notification/testNotification.log
+----
+
+[[to-set-compress-on-rotation]]
+==== To Set Compress on Rotation
+
+`Compress on Rotation` provides a way to set compression of log files on 
+rotation automatically. 
+
+*Using the Admin Console*
+
+To configure `Compress on Rotation` option using Admin Console:
+
+image:logging/notification-logging/payara_notification_set_compress_on_rotation.png[Compress on Rotation enabled]
+
+*Using an `asadmin` command*
+
+Use the following command to enable or disable compression of log files on 
+rotation:
+
+[source, shell]
+----
+asadmin> set-log-attributes fish.payara.enterprise.server.logging.PayaraNotificationFileHandler.compressOnRotation=true
+----
+
+
+[[daily-log-rotation]]
+== Daily Log Rotation
+
+
+Log file rotation keeps log files manageable and organized, as old log files are automatically deleted when they pass a given threshold, instead of staying on the system and eventually running the system out of disk space. Log file rotation still allows you to access previous logs, but its unlikely that you would need a log file older than a couple weeks.
+
+[[Enabling-daily-rotation]]
+=== Enabling daily rotation
+
+image:logging/daily-log-rotation.png[Daily rotation config]
+
+By default a size rotation of 2mb is used for logs in Payara Server Community, meaning no log files will be deleted until the size limit is reached and a new log is made at midnight.
+
+Payara Server Community also has a number of rotation conditions which can be changed in the admin console.
+
+* Time - Daily, weekly, monthly or even hourly log rotation.
+* Size - Logs are rotated when they exceed a certain limit.
+* Number - Maximum number of enteries in a log file.
+
+image:logging/log_rotation_settings.png[Log rotation settings]
+
+Which allows you to change how the logs are rotated to your needs and can be combined with daily log rotation. Enabling daily log rotation and setting a limit on the number of logs to keep will keep a certain number of days of logs before the oldest log file gets deleted at midnight.
+
+
+[[ansi-coloured-logs]]
+== ANSI Coloured Logging
+
+
+Payara Server now supports using ANSI colours when running in verbose mode.
+
+To enable ANSI colours using the `asadamin` tool:
+
+[source, shell]
+----
+asadmin> set-log-attributes com.sun.enterprise.server.logging.UniformLogFormatter.ansiColor=true
+----
+
+NOTE: This is enabled by default on Linux and Mac.
+
+
+[[compression-of-log-files-on-rotation]]
+== Compression of log files on rotation
+
+
+Both Payara Server and GlassFish 4.0 Open Source Edition provide an option
+to rotate logs files using a configurable interval (given either by the size of
+the log file or by time elapsed). On top of that, Payara Server Community can be
+configured to compress rotated files automatically. This is done
+transparently, so  it is still possible to view  log entries that are using the
+the log viewer in the Web Admin Console.
+
+
+*Using the Web Admin Console*
+
+When log rotation is configured, you can turn on compression of rotated
+files in the `Logger Settings` section, by ticking the `Compress on Rotation`
+checkbox:
+
+image:logging/compress_on_rotation.png[Compress on Rotation enabled]
+
+*Using an `asadmin` command*
+
+Use the following command to enable or disabled the automatic compression
+of log files on rotation:
+
+[source, shell]
+----
+asadmin> set-log-attributes com.sun.enterprise.server.logging.GFFileHandler.compressOnRotation='true'
+----
+
+[[view-the-log-files-in-the-admin-console]]
+=== View the log files in the Admin Console
+
+The log files can be viewed in Admin Console in the same way as if they
+were uncompressed. The only difference is that the filename name ends with
+the `.gz` extension and it takes much longer to open them and display their
+contents.
+
+This is an example how the *Log Viewer* may visualize 3 compressed
+log files:
+
+image:logging/zipped_logs.png[Log Viewer with compressed log files]
+
+[[json-log-formatter]]
+== JSON Log Formatter
+
+
+Besides ULF and ODL logging formats available also in _GlassFish 4_,
+Payara Server provides additional JSON format. With this format, every
+line in the log output is formatted as a JSON string. The log records
+can be then easily parsed by a JSON parser for further data processing.
+
+To enable the JSON formatter using the Admin Console, just select `JSON`
+from the list of Logging Formats, either for `Console` or `Log File`:
+
+image:logging/json_config.png[JSON format configuration in Web Console]
+
+The following administration command will enable the JSON formatter:
+
+[source, shell]
+----
+asadmin> set-log-attributes com.sun.enterprise.server.logging.GFFileHandler.formatter='fish.payara.enterprise.server.logging.JSONLogFormatter'
+----
+
+Once the JSON formatter is enabled, the log file may look similar to this sample:
+
+image:logging/json_example.png[Example log file with JSON format]
+
+[[add-an-underscore-prefix]]
+=== Add an underscore prefix
+
+The following administration command will add the underscore prefix to field names in JSON Formatter:
+
+[source, shell]
+----
+asadmin> set-log-attributes fish.payara.deprecated.jsonlogformatter.underscoreprefix=true
+----
+
+By default, `fish.payara.deprecated.jsonlogformatter.underscoreprefix` property value is false.
+Once underscore prefix enabled, all JSON fields should be prefixed with underscore, similar to this sample:
+
+image:logging/json_underscore_prefix_example.png[Example log file with the underscore prefix in JSON fields]
+
+[[additional-fields]]
+=== Support for Additional Fields
+
+The JSON Log Formatter also supports the definition of additional fields through the parameters property. This
+includes logging out the contents of a map.
+
+You can set these additional fields via the `LogRecord.setParameters` method, like so:
+
+[source, java]
+----
+LogRecord lr = new LogRecord(Level.INFO, "some message");
+lr.setParameters(new Object[]{Collections.singletonMap(correlationIdKey, correlationIdValue)});
+logger.log(lr);
+----
+
+[[log-to-file]]
+== Log To File
+
+
+Similar to `Log to Console` option available in both GlassFish 4.0 Open Source 
+Edition and Payara Server. `Log to File` option will provide a way to enable 
+and disable logging to a file in Payara Server Community. When disabled this should help 
+to minimize disk usage. This option will be more accommodating if Payara Server 
+is running in cloud environment where disk space is scarce. 
+
+*Using the Admin Console*
+
+To configure `Log to File` option using Admin Console:
+
+image:logging/log_to_file.png[Log to File enabled]
+
+*Using an `asadmin` command*
+
+Use the following command to enable or disabled logging to a file:
+
+[source, shell]
+----
+asadmin> set-log-attributes com.sun.enterprise.server.logging.GFFileHandler.logtoFile=false
+----
+
+
+[[multiline-mode-for-logging]]
+== Multiline Mode for Logging
+
+
+When Multiline mode is enabled, the log message body is printed on a new
+line after the message header for each log record. This will lead to a
+more friendly format that allows an easier reading.
+
+It is possible to enable Multiline mode using the Web Console:
+
+image:logging/multiline.png[Multiline mode in the Web Console]
+
+To enable the Multiline mode using the `asadmin` tool:
+
+[source, shell]
+----
+asadmin> set-log-attributes com.sun.enterprise.server.logging.GFFileHandler.multiLineMode='true'
+----
+
+After the Multiline mode is enabled, the log messages will look similar
+to this sample:
+
+image:logging/multiline_example.png[Multiline mode in the Web Console]
